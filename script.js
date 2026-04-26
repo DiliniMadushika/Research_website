@@ -90,23 +90,54 @@ document.addEventListener('DOMContentLoaded', () => {
   handleScroll();
   updateActiveLink();
 
-  /* ─── Contact Form ─── */
+  /* ─── Contact Form with EmailJS ─── */
   contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const btn = document.getElementById('submitBtn');
     const originalText = btn.innerHTML;
 
-    // Simple success feedback
-    btn.innerHTML = '<i class="fas fa-check-circle"></i> Message Sent!';
-    btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+    // Show loading state
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     btn.disabled = true;
+    btn.style.opacity = '0.7';
 
-    setTimeout(() => {
-      btn.innerHTML = originalText;
-      btn.style.background = '';
-      btn.disabled = false;
-      contactForm.reset();
-    }, 3000);
+    // Prepare template parameters
+    const templateParams = {
+      from_name: document.getElementById('contactName').value,
+      from_email: document.getElementById('contactEmail').value,
+      message: document.getElementById('contactMessage').value,
+      to_email: 'dilinimadushika378@gmail.com'
+    };
+
+    // Send email via EmailJS
+    // The 4th parameter is the public key from EmailJS dashboard (Account → General)
+    emailjs.send('service_shxqutb', 'template_v968p76', templateParams, 'RkeGRVojdx9F-GdN3')
+      .then(() => {
+        // Success
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Message Sent!';
+        btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        btn.style.opacity = '1';
+        contactForm.reset();
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+          btn.disabled = false;
+        }, 3000);
+      })
+      .catch((error) => {
+        // Error
+        console.error('EmailJS Error:', error);
+        btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed! Try again';
+        btn.style.background = 'linear-gradient(135deg, #dc2626, #ef4444)';
+        btn.style.opacity = '1';
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+          btn.disabled = false;
+        }, 3000);
+      });
   });
 });
