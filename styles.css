@@ -859,6 +859,68 @@ h1, h2, h3, h4, h5, h6 {
 }
 .doc-meta i { color: var(--primary-400); margin-right: 4px; }
 
+/* ─── Checklist Table ─── */
+.checklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  background: var(--white);
+  table-layout: fixed;
+}
+
+.checklist-table tr {
+  border-bottom: 1px solid var(--dark-200);
+}
+
+.checklist-table tr:last-child {
+  border-bottom: none;
+}
+
+.checklist-table tr.checklist-header {
+  background: var(--primary-50);
+  font-weight: 600;
+  color: var(--primary-700);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.checklist-table tr.checklist-header th {
+  background: var(--primary-50);
+  font-weight: 600;
+  color: var(--primary-700);
+  padding: 10px 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.checklist-table th,
+.checklist-table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-right: 1px solid var(--dark-100);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checklist-table th:last-child,
+.checklist-table td:last-child {
+  border-right: none;
+}
+
+.checklist-table td {
+  color: var(--dark-600);
+}
+
+.checklist-table tbody tr:nth-child(even) {
+  background: var(--dark-50);
+}
+
+.checklist-table tbody tr:hover {
+  background: var(--primary-100);
+}
+
 /* ═══════════ PRESENTATIONS ═══════════ */
 .presentations-grid {
   display: grid;

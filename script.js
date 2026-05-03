@@ -13,6 +13,108 @@ document.addEventListener('DOMContentLoaded', () => {
   const animElements = document.querySelectorAll('.animate-on-scroll');
   const contactForm = document.getElementById('contactForm');
 
+  /* ─── CSV Parser for quoted fields ─── */
+  function parseCSV(csvText) {
+    const rows = [];
+    let currentRow = [];
+    let currentField = '';
+    let insideQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i];
+      const nextChar = csvText[i + 1];
+
+      if (char === '"') {
+        if (insideQuotes && nextChar === '"') {
+          // Escaped quote
+          currentField += '"';
+          i++;
+        } else {
+          // Toggle quote state
+          insideQuotes = !insideQuotes;
+        }
+      } else if (char === ',' && !insideQuotes) {
+        // End of field
+        currentRow.push(currentField.trim());
+        currentField = '';
+      } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+        // End of row
+        if (currentField || currentRow.length > 0) {
+          currentRow.push(currentField.trim());
+          if (currentRow.some(field => field)) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentField = '';
+        }
+        // Skip \r\n
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+      } else {
+        currentField += char;
+      }
+    }
+
+    // Add last field and row
+    if (currentField || currentRow.length > 0) {
+      currentRow.push(currentField.trim());
+      rows.push(currentRow);
+    }
+
+    return rows;
+  }
+
+  /* ─── Load CSV Checklist ─── */
+  function loadChecklistCSV() {
+    fetch('assets/Documents/checklist_data.csv')
+      .then(response => response.text())
+      .then(data => {
+        const rows = parseCSV(data);
+        let table = '<table class="checklist-table"><tbody>';
+        
+        rows.forEach((row, index) => {
+          const isHeader = index === 0;
+          const tag = isHeader ? 'th' : 'td';
+          
+          table += `<tr ${isHeader ? 'class="checklist-header"' : ''}>`;
+          row.forEach(cell => {
+            table += `<${tag}>${escapeHtml(cell)}</${tag}>`;
+          });
+          table += '</tr>';
+        });
+        
+        table += '</tbody></table>';
+        const container = document.getElementById('checklistTableContainer');
+        if (container) {
+          container.innerHTML = table;
+        }
+      })
+      .catch(error => {
+        console.error('Error loading CSV:', error);
+        const container = document.getElementById('checklistTableContainer');
+        if (container) {
+          container.innerHTML = '<p style="color: var(--dark-500); padding: 16px;">Error loading checklist. <a href="assets/Documents/checklist_data.csv" download>Download CSV</a></p>';
+        }
+      });
+  }
+
+  /* ─── Helper: Escape HTML ─── */
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Load checklist on page load
+  loadChecklistCSV();
+
+
   /* ─── Mobile Menu ─── */
   navToggle.addEventListener('click', () => {
     navToggle.classList.toggle('open');
